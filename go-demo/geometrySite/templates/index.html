@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Геометрический калькулятор</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+        .calculator {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .history {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: fit-content;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+        h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .field-group {
+            display: none;
+            margin-top: 15px;
+            animation: fadeIn 0.3s;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            animation: slideIn 0.5s;
+        }
+        .history-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover {
+            background: #e9ecef;
+        }
+        .history-date {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        .history-text {
+            font-size: 14px;
+            color: #333;
+        }
+        .clear-history {
+            background: #dc3545;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .clear-history:hover {
+            background: #c82333;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="calculator">
+        <h1>📐 Геометрический калькулятор</h1>
+        <p>Выберите фигуру и введите данные</p>
+
+        <form method="POST" id="calcForm">
+            <div class="form-group">
+                <label>Фигура:</label>
+                <select name="figure" id="figure" required>
+                    <option value="">Выберите...</option>
+                    <option value="circle">🔴 Круг (площадь)</option>
+                    <option value="rectangle_area">📏 Прямоугольник (площадь)</option>
+                    <option value="rectangle_perimeter">📐 Прямоугольник (периметр)</option>
+                    <option value="triangle_area">🔺 Треугольник (площадь)</option>
+                    <option value="triangle_perimeter">📏 Треугольник (периметр)</option>
+                </select>
+            </div>
+
+            <div id="circle-fields" class="field-group">
+                <input type="number" step="any" name="radius" placeholder="Радиус (r)">
+            </div>
+
+            <div id="rectangle_area-fields" class="field-group">
+                <input type="number" step="any" name="length" placeholder="Длина (a)">
+                <input type="number" step="any" name="width" placeholder="Ширина (b)">
+            </div>
+
+            <div id="rectangle_perimeter-fields" class="field-group">
+                <input type="number" step="any" name="length" placeholder="Длина (a)">
+                <input type="number" step="any" name="width" placeholder="Ширина (b)">
+            </div>
+
+            <div id="triangle_area-fields" class="field-group">
+                <input type="number" step="any" name="base" placeholder="Основание (a)">
+                <input type="number" step="any" name="height" placeholder="Высота (h)">
+            </div>
+
+            <div id="triangle_perimeter-fields" class="field-group">
+                <input type="number" step="any" name="sideA" placeholder="Сторона A">
+                <input type="number" step="any" name="sideB" placeholder="Сторона B">
+                <input type="number" step="any" name="sideC" placeholder="Сторона C">
+            </div>
+
+            <button type="submit">🧮 Вычислить</button>
+        </form>
+
+        {{if .ShowResult}}
+        <div class="result" id="currentResult">
+            {{.Result}}
+        </div>
+        {{end}}
+    </div>
+
+    <div class="history">
+        <h3>📜 История вычислений</h3>
+        <div id="historyList"></div>
+        <button class="clear-history" onclick="clearHistory()">🗑️ Очистить историю</button>
+    </div>
+</div>
+
+<script>
+    // Показ/скрытие полей ввода
+    function showFields() {
+        const figure = document.getElementById('figure').value;
+        document.querySelectorAll('.field-group').forEach(el => el.style.display = 'none');
+        if (figure && document.getElementById(figure + '-fields')) {
+            document.getElementById(figure + '-fields').style.display = 'block';
+        }
+    }
+
+    document.getElementById('figure').addEventListener('change', showFields);
+    showFields();
+
+    // Сохранение результата в историю
+    {{if .ShowResult}}
+    (function() {
+        const resultText = {{.Result}};
+        const calcType = {{.CalcType}};
+        const calcData = {{.CalcData}};
+
+        // Получаем существующую историю
+        let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+
+        // Добавляем новый результат
+        history.unshift({
+            id: Date.now(),
+            text: resultText,
+            type: calcType,
+            data: calcData,
+            date: new Date().toLocaleString()
+        });
+
+        // Оставляем только последние 20 записей
+        if (history.length > 20) history.pop();
+
+        // Сохраняем обратно
+        localStorage.setItem('calcHistory', JSON.stringify(history));
+    })();
+    {{end}}
+
+    // Отображение истории
+    function displayHistory() {
+        const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        const historyDiv = document.getElementById('historyList');
+
+        if (history.length === 0) {
+            historyDiv.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">Нет вычислений</div>';
+            return;
+        }
+
+        historyDiv.innerHTML = history.map(item => `
+                <div class="history-item" onclick="recalculate(${item.id})">
+                    <div class="history-date">📅 ${item.date}</div>
+                    <div class="history-text">${item.text}</div>
+                    <div class="badge">Нажмите, чтобы повторить</div>
+                </div>
+            `).join('');
+    }
+
+    // Повторный расчёт по истории
+    function recalculate(id) {
+        const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        const item = history.find(h => h.id === id);
+        if (item && item.data) {
+            const form = document.getElementById('calcForm');
+            // Заполняем поля формы из сохранённых данных
+            Object.keys(item.data).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) input.value = item.data[key];
+            });
+            // Выбираем тип фигуры
+            const select = document.getElementById('figure');
+            select.value = item.type;
+            showFields();
+            form.submit();
+        }
+    }
+
+    // Очистка истории
+    function clearHistory() {
+        if (confirm('Удалить всю историю вычислений?')) {
+            localStorage.removeItem('calcHistory');
+            displayHistory();
+        }
+    }
+
+    // Загружаем историю при загрузке страницы
+    displayHistory();
+</script>
+</body>
+</html>

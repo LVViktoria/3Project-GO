@@ -1,1 +1,8 @@
-./app-1
+# Compiled binaries
+/.app-1
+
+# OS files
+/.DS_Store
+
+# IDE
+/.idea/
