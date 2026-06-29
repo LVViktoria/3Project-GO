@@ -9,11 +9,6 @@ import (
 	"weatherCli/pkg/config"
 )
 
-type WeatherData struct {
-	City        string
-	Temperature string
-}
-
 func GetWeather(geo ipdetector.GeoData, format int, cfg config.Config) (*WeatherData, error) {
 	baseUrl, err := url.Parse(cfg.WeatherURL + geo.City)
 	if err != nil {
@@ -29,14 +24,16 @@ func GetWeather(geo ipdetector.GeoData, format int, cfg config.Config) (*Weather
 		return nil, err
 	}
 
-	defer resp.Body.Close() //добавлен defer
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(" returned status %d", resp.StatusCode)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
-	
+
 	weatherData := &WeatherData{
 		City:        geo.City,
 		Temperature: string(body),

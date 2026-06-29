@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"time"
 	"weatherCli/internal/history"
 	"weatherCli/internal/ipdetector"
@@ -20,65 +21,74 @@ func main() {
 	flag.Parse()
 
 	if *historyFlag {
-		entries, err := history.Load()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for _, entry := range entries {
-			fmt.Printf(
-				"%s | %s | %s\n",
-				entry.Time.Format("02.01.2006 15:04"),
-				entry.City,
-				entry.Temperature,
-			)
-		}
-
+		showHistory()
 		return
 	}
-	if *clearHistory {
-		err := history.Clear()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 
+	if *clearHistory {
+		if err := history.Clear(); err != nil {
+			log.Fatal("Ошибка очистки истории:", err)
+		}
 		fmt.Println("История очищена")
 		return
 	}
 
-	fmt.Println(*city)
+	var err error
+	var geoData *ipdetector.GeoData
 
-	geoData, err := ipdetector.GetLocation(*city, cfg)
-	if err != nil {
-		fmt.Println(err.Error())
+	//определение города
+
+	if *city != "" {
+		geoData, err = ipdetector.GetLocation(*city, cfg)
+	} else {
+		cityIP, err := ipdetector.GetCityIP()
+		if err != nil {
+			log.Fatal("Не удалось определить город по IP", err)
+		}
+		geoData = &ipdetector.GeoData{City: cityIP}
 	}
-	fmt.Println(geoData)
 
+	if err != nil {
+		log.Fatal("Ошибка определения геопозиции:", err)
+	}
+	if geoData == nil {
+		log.Fatal("Не удалось получить геоданные:")
+	}
+
+	//получение погоды
 	weatherData, err := weather.GetWeather(*geoData, *format, cfg)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal("Ошибка получения погоды:", err)
 	}
+	//вывод погоды
+	fmt.Println(weather.Format(*weatherData))
 
-	fmt.Println(weatherData)
-	err = history.Save(history.Entry{
-		City:        geoData.City,
+	//сохранение в историю
+	entry := history.Entry{
+		City:        *city,
 		Temperature: weatherData.Temperature,
 		Time:        time.Now(),
-	})
-
-	if err != nil {
-		fmt.Println(err)
 	}
+	if err := history.Save(entry); err != nil {
+		fmt.Println("Не удалось сохранить историю", err)
+	}
+}
+
+func showHistory() {
 	entries, err := history.Load()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal("Ошибка загрузки истории", err)
+	}
+	if len(entries) == 0 {
+		fmt.Println("История пуста")
 	}
 
-	for _, e := range entries {
-		fmt.Println(e.Time, e.City, e.Temperature)
+	for _, entry := range entries {
+		fmt.Printf(
+			"%s | %s | %s\n",
+			entry.Time.Format("02.01.2006 15:04"),
+			entry.City,
+			entry.Temperature,
+		)
 	}
 }
