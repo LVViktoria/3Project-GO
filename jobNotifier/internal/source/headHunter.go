@@ -15,7 +15,7 @@ type HeadHunterSource struct {
 	client *http.Client
 }
 
-func NewHeadHunterSource(client *http.Client) *HeadHunterSource {
+func NewHeadHunterSource() *HeadHunterSource {
 	return &HeadHunterSource{
 		client: &http.Client{
 			Timeout: 10 * time.Second,
@@ -49,10 +49,9 @@ func (s *HeadHunterSource) Search(keywords []string) ([]model.Job, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %w", err)
 	}
-	req.Header.Set("User-Agent", "JobNotifier/1.0")
-	req.Header.Set("User-Agent", "JobNotifier/1.0")
+	req.Header.Set("User-Agent", "JobNotifier/1.0 (smtpnotifiertest@gmail.com)")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer token")
+
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)

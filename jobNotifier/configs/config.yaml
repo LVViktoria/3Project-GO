@@ -1,0 +1,16 @@
+SMTP:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "smtpnotifiertest@gmail.com"
+  password: "gnzy cstj kmhc djig"
+  from: "smtpnotifiertest@gmail.com"
+
+user:
+  keywords:
+    - "Golang"
+    - "Go"
+    - "Backend"
+  city: "Москва"
+  min_salary: 150000
+  check_interval: 15
+  email: "smtpnotifiertest@gmail.com"

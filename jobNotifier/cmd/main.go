@@ -8,37 +8,47 @@ package main
 import (
 	"context"
 	"fmt"
+	"jobNotifier/internal/config"
 	"jobNotifier/internal/model"
 	"jobNotifier/internal/notifier"
 	"jobNotifier/internal/source"
-	"net/http"
 	"sync"
 	"time"
 )
 
 func main() {
-	httpClient := &http.Client{
-		Timeout: 10 * time.Second,
+
+	cfg, err := config.LoadConfig("configs/config.yaml")
+	if err != nil {
+		fmt.Printf("Ошибка загрузки конфига: %v\n", err)
+		return
 	}
+
+	fmt.Printf("Уведомления будут отправляться на: %s\n", cfg.User.Email)
 
 	sources := []source.Source{
-		source.NewHeadHunterSource(httpClient),
+		source.NewHeadHunterSource(),
 	}
 
-	keywords := []string{"Golang", "Go"} //добавить другие ключевые слова
-
-	ticker := time.NewTicker(15 * time.Second)
+	//keywords := []string{"Golang", "Go"} //добавить другие ключевые слова
+	//периодический запуск
+	interval := time.Duration(cfg.User.CheckInterval) * time.Second
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop() //?
+	fmt.Printf("Интервал проверки: %d секунд\n", cfg.User.CheckInterval)
+
+	fmt.Println("\n Первая проверка...")
+	runCheck(sources, cfg.User.Keywords, cfg)
 
 	for {
 		select {
 		case <-ticker.C:
 			fmt.Println("Проверка...")
-			runCheck(sources, keywords)
+			runCheck(sources, cfg.User.Keywords, cfg)
 		}
 	}
 }
-func runCheck(sources []source.Source, keywords []string) {
+func runCheck(sources []source.Source, keywords []string, cfg *model.Config) {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
@@ -94,7 +104,7 @@ func runCheck(sources []source.Source, keywords []string) {
 	fmt.Printf("После дедупликации: %d уникальных вакансий\n", len(uniqueJobs))
 
 	if len(uniqueJobs) > 0 {
-		if err := notifier.SendEmail(uniqueJobs); err != nil {
+		if err := notifier.SendEmail(uniqueJobs, cfg.SMTP, cfg.User.Email); err != nil {
 			fmt.Printf("Ошибка отправки: %v\n", err)
 		} else {
 			fmt.Println("Нет новых вакансий для отправки")
