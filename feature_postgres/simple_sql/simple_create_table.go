@@ -6,7 +6,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// todo:создать таблицу в бд для хранения задач
 func CreateTable(ctx context.Context, conn *pgx.Conn) error {
 	sqlQuery := `
 CREATE TABLE IF NOT EXISTS tasks(

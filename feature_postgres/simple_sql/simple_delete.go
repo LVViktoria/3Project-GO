@@ -6,7 +6,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// todo:удалить запись
 func DeleteRow(ctx context.Context, conn *pgx.Conn, tasksIDs []int) error {
 	sqlQuery := `
 	DELETE FROM tasks 

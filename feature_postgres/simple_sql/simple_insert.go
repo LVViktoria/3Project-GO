@@ -1,14 +1,10 @@
 package simple_sql
 
-//todo:создать новую запись в таблице
-//добавить ограничение уникальности заголовка(создается при создании таблицы)
 import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
 )
-
-//схема запроса пользователя: http->body->struct->args
 
 func InsertRow(
 	ctx context.Context,

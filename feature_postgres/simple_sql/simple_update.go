@@ -6,8 +6,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-//todo: изменить существующие записи
-
 func UpdateRow(ctx context.Context, conn *pgx.Conn) error {
 	sqlQuery := `
 	UPDATE tasks

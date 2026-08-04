@@ -1,10 +1,5 @@
 package simple_sql
 
-//todo: отправить задачи в ответ на запрос пользователя
-//<-http(get tasks)
-//->db(tasks)
-//rows<-db
-//rows->http
 import (
 	"context"
 	"fmt"
@@ -24,7 +19,7 @@ func SelectRows(ctx context.Context, conn *pgx.Conn) ([]TaskModel, error) {
 	}
 	defer rows.Close()
 
-	tasks := make([]TaskModel, 0) //слайс моделей
+	tasks := make([]TaskModel, 0)
 
 	for rows.Next() {
 		var task TaskModel
@@ -41,7 +36,7 @@ func SelectRows(ctx context.Context, conn *pgx.Conn) ([]TaskModel, error) {
 			return nil, err
 		}
 		tasks = append(tasks, task)
-		//printTask(task)
+
 	}
 	return tasks, nil
 }

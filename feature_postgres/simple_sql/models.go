@@ -1,6 +1,5 @@
 package simple_sql
 
-//todo:создать модель для задачи
 import "time"
 
 type TaskModel struct {

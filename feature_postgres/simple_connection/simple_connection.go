@@ -1,7 +1,5 @@
 package simple_connection
 
-//todo:создать подключение к бд
-
 import (
 	"context"
 
