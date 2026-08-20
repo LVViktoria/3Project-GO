@@ -1,45 +1,64 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	str := "message:pong"
-	b := []byte(str)
+func writeJSON(w http.ResponseWriter, status int, data map[string]string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
 
-	_, err := w.Write(b)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(data); err != nil {
 		fmt.Println("Во время записи HTTP ответа произошла ошибка:", err.Error())
-	} else {
-		fmt.Println("Обработка на паттерне /ping")
 	}
 }
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	str := "status:ok"
-	b := []byte(str)
 
-	_, err := w.Write(b)
-	if err != nil {
-		fmt.Println("Во время записи HTTP ответа произошла ошибка:", err.Error())
-	} else {
-		fmt.Println("Обработка на паттерне /health")
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+			"error": "method not allowed",
+		})
+		return
 	}
+
+	writeJSON(w, http.StatusOK, map[string]string{
+		"message": "pong",
+	})
+
+	fmt.Println("Обработка на паттерне /ping")
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+			"error": "method not allowed",
+		})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{
+		"status": "ok",
+	})
+
+	fmt.Println("Обработка на паттерне /health")
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
-	str := "version:1.0.0"
-	b := []byte(str)
-
-	_, err := w.Write(b)
-	if err != nil {
-		fmt.Println("Во время записи HTTP ответа произошла ошибка:", err.Error())
-	} else {
-		fmt.Println("Обработка на паттерне /version")
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+			"error": "method not allowed",
+		})
+		return
 	}
-}
 
+	writeJSON(w, http.StatusOK, map[string]string{
+		"version": "1.0.0",
+	})
+
+	fmt.Println("Обработка на паттерне /version")
+}
 func main() {
 	http.HandleFunc("/ping", pingHandler)
 	http.HandleFunc("/health", healthHandler)
